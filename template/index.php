@@ -1,35 +1,6 @@
 <?php
-    require_once("./action/dbconnect.php");
+    require_once("./action/load-users.php");
 
-    try {
-        $stmt = $con->prepare("
-            SELECT 
-                u.*,
-                COUNT(DISTINCT w.worksite_id) AS num_worksites,
-                COUNT(DISTINCT n.noti_id) AS num_services,
-                MAX(s.service_datetime) AS latest_service_date
-            FROM 
-                user u
-            JOIN 
-                account a ON u.user_id = a.user_id
-            LEFT JOIN 
-                worksite w ON u.user_id = w.user_id
-            LEFT JOIN 
-                notification n ON u.user_id = n.user_id AND n.noti_status = 0
-            LEFT JOIN 
-                service s ON s.noti_id = n.noti_id
-            WHERE 
-                a.account_type = 'customer'
-            GROUP BY 
-                u.user_id;
-        ");
-        $stmt->execute();
-    
-        $customers = $stmt->fetchAll(PDO::FETCH_ASSOC);
-
-    } catch(PDOException $e) {
-        echo "Connection failed: " . $e->getMessage();
-    }
 ?>
 
 
@@ -96,36 +67,43 @@
       </thead>
       <tbody>
         
-          <tr>
-            <td>
-              <div class="d-flex align-items-center">
-                <img src="../uploads/user-img/" alt="" style="width: 45px; height: 45px" class="rounded-circle"/>
-                <div class="ms-3 d-flex flex-column">
-                  <p class="m-0 text-muted" style="font-size: 14px;"></p>
-                  <a href="./profile?user-id="><p class="fw-bold mb-0"></p></a>
-                  <p class="m-0"></p>
+          <?php
+          foreach($customers as $customer){
+            echo '
+            <tr>
+              <td>
+                <div class="d-flex align-items-center">
+                  <img src="../uploads/user-img/" alt="" style="width: 45px; height: 45px" class="rounded-circle"/>
+                  <div class="ms-3 d-flex flex-column">
+                    <p class="m-0 text-muted" style="font-size: 14px;">'. $customer['user_id'] . '</p>
+                    <a href="./profile?user-id="><p class="fw-bold mb-0">'. $customer['name_lastname'] . '</p></a>
+                    <p class="m-0">'. $customer['email'] . '</p>
+                  </div>
                 </div>
-              </div>
-            </td>
-            <td>
-              <p class="fw-normal mb-0"></p>
-            </td>
-            <td>
-              <p class="fw-normal mb-0"></p>
-            </td>
-            <td class="text-center">
-              <span></span>
-            </td>
-            <td class="text-center">
-              
-                <span></span><br>
-                <i class="text-muted" style="font-size: 14px;">ล่าสุด </i>
-              
-            </td>
-            <td class="text-center">
-              <a class="btn btn-primary btn-sm btn-rounded" href="./new-worksite.php?user-id=">เพิ่มหน้างาน</a>
-            </td>
-          </tr>
+              </td>
+              <td>
+                <p class="fw-normal mb-0">'. $customer['phone'] . '</p>
+              </td>
+              <td>
+                <p class="fw-normal mb-0">' .$customer['address'] . '</p>
+              </td>
+              <td class="text-center">
+                <span>' .$customer['num_worksites'] .'</span>
+              </td>
+              <td class="text-center">
+                
+                  <span>' .$customer['num_services'] .'</span><br>
+                  <i class="text-muted" style="font-size: 14px;">ล่าสุด ' .$customer['latest_service_date'] .' </i>
+                
+              </td>
+              <td class="text-center">
+                <a class="btn btn-primary btn-sm btn-rounded" href="./new-worksite.php?user-id=">เพิ่มหน้างาน</a>
+              </td>
+            </tr>
+            ';
+          }
+          
+          ?>
         
       </tbody>
     </table>

@@ -1,3 +1,19 @@
+<?php
+  session_start();
+  
+  if(!isset($_SESSION['user-login-id'])) { //check is login
+    header('location: ../');
+  }else if($_SESSION['user-acc-type'] != 'admin') { //check is customer
+    header('location: ./profile/?user-id=' . $_SESSION['user-login-id']);
+  }
+  
+  if(isset($_GET['kw-search'])) {
+    require_once('action/load-worksites-search.php'); //กรณีที่ค้นหาหน้างาน
+  }else {
+    require_once('action/load-worksites.php'); //ไฟล์เริ่มต้น
+  }
+?>
+
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -22,9 +38,10 @@
         </ul>
 
         <a href="./notify-services.php" class="btn btn-light me-3 btn-sm">แจ้งเตือน</a>
+        <?php echo $_SESSION['admin-user-name']?>
         <div class="dropdown text-end ms-3 ">
           <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="../uploads/user-img/" alt="mdo" width="32" height="32" class="rounded-circle">
+            <img src="../uploads/user-img/<?php echo $_SESSION['user-image-login']?>" alt="mdo" width="32" height="32" class="rounded-circle">
           </a>
           <ul class="dropdown-menu text-small">
             <li><a class="dropdown-item" href="./profile/?user-id=">Profile</a></li>
@@ -59,39 +76,57 @@
         </tr>
       </thead>
       <tbody>
+        <?php 
+          foreach($worksite_list as $worksite) {
+
+            if($worksite['img_type'] == '') {
+              $user_img = 'default.png';
+            }
+            else
+            {
+              $user_img = $worksite['user_id'] . '.' . $worksite['img_type'];
+            }
+
+            $warranty = $worksite['install_date_status'] ? 'อยู่ในประกัน' : 'หมดประกัน';
+            echo '
+              <tr>
+                <td>
+                  <div class="d-flex align-items-center">
+                  <img src="../uploads/user-img/'.$user_img.'" alt="" style="width: 45px; height: 45px" class="rounded-circle"/>
+                    <div class="ms-3 d-flex flex-column">
+                      <p class="m-0 text-muted" style="font-size: 12px;">'.$worksite['user_id'].'</p>
+                      <a href="./profile?user-id="><p class="fw-bold mb-0">'.$worksite['name_lastname'].'</p></a>
+                      <p class="text-muted m-0">'.$worksite['phone'].'</p>
+                    </div>
+                  </div>
+                </td>
+                <td>
+                  <p class="m-0 text-muted" style="font-size: 12px;">'.$worksite['worksite_id'].'</p>
+                  <a href="./profile/worksite-details.php?worksite-id=&user-id="><p class="fw-bold mb-0">'.$worksite['worksite_name'].'</p></a>
+                  <p class="m-0 text-muted">วันที่ติดตั้ง : '.$worksite['install_date'].'</p>
+                </td>
+                <td>
+                  '.$worksite['address'].'
+                </td>
+                <td class="text-center">
+                  '.$worksite['camera_number'].'
+                </td>
+                <td class="text-center">
+                  
+                    <span>'.$worksite['num_services'].'</span><br>
+                    <i class="text-muted" style="font-size: 14px;">ล่าสุด '.$worksite['latest_service_date'].'</i>
+                  
+                </td>
+                <td class="text-center">
+                  <div class="d-flex align-items-center justify-content-center">
+                    '. $warranty .'
+                  </div>
+                </td>
+              </tr>
+            ';
+          }
+        ?>
         
-        <tr>
-          <td>
-            <div class="d-flex align-items-center">
-            <img src="../uploads/user-img/" alt="" style="width: 45px; height: 45px" class="rounded-circle"/>
-              <div class="ms-3 d-flex flex-column">
-                <p class="m-0 text-muted" style="font-size: 12px;"></p>
-                <a href="./profile?user-id="><p class="fw-bold mb-0"></p></a>
-                <p class="text-muted m-0"></p>
-              </div>
-            </div>
-          </td>
-          <td>
-            <p class="m-0 text-muted" style="font-size: 12px;"></p>
-            <a href="./profile/worksite-details.php?worksite-id=&user-id="><p class="fw-bold mb-0"></p></a>
-            <p class="m-0 text-muted">วันที่ติดตั้ง : </p>
-          </td>
-          <td>
-          </td>
-          <td class="text-center">
-          </td>
-          <td class="text-center">
-            
-              <span></span><br>
-              <i class="text-muted" style="font-size: 14px;">ล่าสุด </i>
-            
-          </td>
-          <td class="text-center">
-            <div class="d-flex align-items-center justify-content-center">
-              
-            </div>
-          </td>
-        </tr>
         
       </tbody>
     </table>

@@ -1,6 +1,6 @@
 <?php
-    require_once('./dbconnect.php');
-    session_start();
+    require_once('./dbconnect.php'); //เรียกใช้ไฟล์เชื่อมต่อฐานข้อมูล
+    session_start(); //เป็นฟังค์ชั่นเริ่มต้นของ session
 
     try {
         //รับค่าจากฟอร์มล็อกอิน
@@ -36,7 +36,7 @@
             }
 
         } else {
-            header("location: ../../index.php?login_error=1");
+            header("location: ../../?login_error=1");
         }
     } catch(PDOException $e) {
         echo "Connection failed: " . $e->getMessage();

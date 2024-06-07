@@ -1,6 +1,7 @@
 <?php
-    require_once("./action/load-users.php");
-
+  session_start();
+  require_once("./action/load-users.php");
+  require_once("./action/load-admin-info.php");
 ?>
 
 
@@ -28,11 +29,12 @@
         </ul>
 
         <a href="./notify-services.php" class="btn btn-light me-3 btn-sm">แจ้งเตือน</a>
-        
+        <?php echo $_SESSION['admin-user-name']?>
         <div class="dropdown text-end ms-3 ">
           <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="../uploads/user-img/<?php echo $admin['img_type'] ? $admin['user_id'] . "." . $admin['img_type'] : "default.png" ; ?>" alt="mdo" width="32" height="32" class="rounded-circle">
+            <img src="../uploads/user-img/<?php echo $_SESSION['user-image-login'] ?>" alt="mdo" width="32" height="32" class="rounded-circle">
           </a>
+
           <ul class="dropdown-menu text-small">
             <li><a class="dropdown-item" href="./profile/?user-id=<?php echo $_SESSION['user-login-id']?>">Profile</a></li>
             <li><hr class="dropdown-divider"></li>
@@ -69,11 +71,20 @@
         
           <?php
           foreach($customers as $customer){
+            if($customer['img_type'] == '')
+            {
+              $user_img = 'default.png';
+            }
+            else 
+            {
+              $user_img = $customer['user_id'] . '.' . $customer['img_type'];
+            }
+
             echo '
             <tr>
               <td>
                 <div class="d-flex align-items-center">
-                  <img src="../uploads/user-img/" alt="" style="width: 45px; height: 45px" class="rounded-circle"/>
+                  <img src="../uploads/user-img/'. $user_img .'" alt="" style="width: 45px; height: 45px" class="rounded-circle"/>
                   <div class="ms-3 d-flex flex-column">
                     <p class="m-0 text-muted" style="font-size: 14px;">'. $customer['user_id'] . '</p>
                     <a href="./profile?user-id="><p class="fw-bold mb-0">'. $customer['name_lastname'] . '</p></a>
@@ -90,7 +101,7 @@
               <td class="text-center">
                 <span>' .$customer['num_worksites'] .'</span>
               </td>
-              <td class="text-center">
+              <td class="text-center"> 
                 
                   <span>' .$customer['num_services'] .'</span><br>
                   <i class="text-muted" style="font-size: 14px;">ล่าสุด ' .$customer['latest_service_date'] .' </i>

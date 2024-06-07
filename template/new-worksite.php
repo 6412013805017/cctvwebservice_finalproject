@@ -1,3 +1,7 @@
+<?php
+session_start();
+require_once('./action/load-user.php');
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -23,9 +27,10 @@
         </ul>
 
         <a href="./notify-services.php" class="btn btn-light me-3 btn-sm">แจ้งเตือน</a>
+        <?php echo $_SESSION['admin-user-name']?>
         <div class="dropdown text-end ms-3 ">
           <a href="#" class="d-block link-body-emphasis text-decoration-none dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">
-            <img src="../uploads/user-img/" alt="mdo" width="32" height="32" class="rounded-circle">
+            <img src="../uploads/user-img/<?php echo $_SESSION['user-image-login'] ?>" alt="mdo" width="32" height="32" class="rounded-circle">
           </a>
           <ul class="dropdown-menu text-small">
             <li><a class="dropdown-item" href="./profile/?user-id=">Profile</a></li>
@@ -133,13 +138,18 @@
       user_list.innerHTML = '';
       
       var users = [
-        
-          {
-              userId: "1",
-              userName: "hkjm",
-              imgType: ''
-          },
-       
+        <?php
+          foreach($customers as $customer) {
+            echo '
+              {
+                userId: "'.$customer['user_id'].'",
+                userName: "'.$customer['name_lastname'].'",
+                imgType: "'.$customer['img_type'].'"
+              },
+            ';
+          }
+          
+        ?>
       ];
       
       users.forEach(user => {
